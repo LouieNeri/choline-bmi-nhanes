@@ -7,17 +7,27 @@ library(gtsummary)
 
 df <- readRDS("data/nhanes_L_analytic.rds")
 
-ana <- df |>
-  filter(in_aim1, bmi_cat != "Underweight") |>
-  mutate(bmi_cat = fct_drop(bmi_cat))
+# Survey design on the full sample then subset for aim 1
+df$WTDR2D[is.na(df$WTDR2D)] <- 0
 
-des <- svydesign(
+des_full <- svydesign(
   ids = ~SDMVPSU,
   strata = ~SDMVSTRA,
   weights = ~WTDR2D,
-  data = ana,
+  data = df,
   nest = TRUE
 )
+
+des <- subset(des_full,
+              in_aim1 %in% TRUE & bmi_cat 
+              != "Underweight")
+
+des <- update(des,
+              bmi_cat = fct_drop(bmi_cat),
+              DMDEDUC2 = fct_drop(DMDEDUC2),
+              RIDRETH3 = fct_drop(RIDRETH3))
+
+ana <- des$variables
 
 # Overall prevalence below Ai
 
@@ -234,16 +244,15 @@ p_aim1_bmi <- ggplot(prev_bmi, aes(x = bmi_cat, y = prevalence)) +
 
 # Aim 1: Women by menopause and BMI
 
-ana_f <- ana |>
-  filter(sex == "Female", menopause %in% c("pre", "post"))
+des_f <- subset(des, sex == "Female" & menopause %in% c("pre", "post"))
 
-des_f <- svydesign(
-  ids = ~SDMVPSU,
-  strata = ~SDMVSTRA,
-  weights = ~WTDR2D,
-  data = ana_f,
-  nest = TRUE
-)
+ana_f <- des_f$variables
+
+# BMI differ by menopausal status?
+m_menopause <- svyglm(below_ai ~ bmi_cat * menopause,
+                      design = des_f,
+                      family = quasibinomial())
+regTermTest(m_menopause, ~bmi_cat:menopause)
 
 # Counts below the AI by menopause status and BMI category
 menopause_counts <- ana_f |>
@@ -496,6 +505,6 @@ gt::gtsave(
 
 #saving additional tables as rds files
 saveRDS(tbl_1, "output/aim1_table_baseline.rds")
-saveRDS(tbl_bmi, "output/aim1_table_sex_bmi.rds")
+saveRDS(tbl_aim1, "output/aim1_table_sex_bmi.rds")
 saveRDS(tbl_aim1_f, "output/aim1_table_menopause.rds")
 

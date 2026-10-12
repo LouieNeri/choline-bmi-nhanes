@@ -6,7 +6,7 @@ library(tidyverse)
 
 # demographics + survey design vars
 demo <- nhanes("DEMO_L") |> 
-  select(SEQN, RIAGENDR, RIDAGEYR, RIDRETH3, DMDEDUC2,
+  select(SEQN, RIAGENDR, RIDAGEYR, RIDRETH3, RIDEXPRG, DMDEDUC2,
          INDFMPIR, SDMVPSU, SDMVSTRA, WTINT2YR, WTMEC2YR)
 
 # day 1 nutrients (choline, energy, weights)
@@ -51,5 +51,5 @@ summary(df$DR1TCHL)                    # choline looks reasonable?
 summary(df$LBXSATSI)                   # ALT looks reasonable?
 
 ## save merged raw data
-saveRDS(df, "nhanes_L_merged_raw.rds")
-write_csv(df, "nhanes_L_merged_raw.csv")   # csv archive copy
+saveRDS(df, "data/nhanes_L_merged_raw.rds")
+write_csv(df, "data/nhanes_L_merged_raw.csv")   # csv archive copy

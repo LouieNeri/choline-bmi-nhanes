@@ -24,6 +24,12 @@ df <- df |>
       TRUE                      ~ NA_character_
     ),
     
+    ## ---- pregnant at exam (AI of 425 mg applies only to non-pregnant women) ---- 
+    pregnant = str_detect(chr(RIDEXPRG), "^Yes"),
+    
+    ## ---- lactating ----
+    lactating = chr(RHD043) == "Breast feeding",
+    
     ## ---- BMI category ----
     bmi_cat = case_when(
       BMXBMI < 18.5                ~ "Underweight",
@@ -75,7 +81,7 @@ df <- df |>
     
     ## heavy alcohol: ALQ130 = avg drinks/day on drinking days.
     ## 777 = Refused, 999 = Don't know -> set to NA before thresholding.
-    alq130_num = suppressWarnings(as.numeric(chr(ALQ130))),
+    alq130_num = suppressWarnings(readr::parse_number(chr(ALQ130))),
     alq130_num = if_else(alq130_num %in% c(777, 999), NA_real_, alq130_num),
     heavy_alcohol = case_when(
       is.na(alq130_num) | is.na(sex)      ~ FALSE,   # no evidence of heavy use
@@ -98,13 +104,16 @@ df <- df |>
   mutate(
     
     ## Aim 1: adults 20+, two reliable recalls, measured BMI, positive 2-day
-    ## weight, a derivable AI comparison, and plausible energy intake
+    ## weight, a derivable AI comparison, plausible energy intake,
+    ## and not pregnant or breastfeeding
     in_aim1 = RIDAGEYR >= 20 &
       day1_ok %in% TRUE & day2_ok %in% TRUE &
       !is.na(WTDR2D) & WTDR2D > 0 &
       !is.na(BMXBMI) &
       !is.na(below_ai) &
-      excl_energy %in% FALSE,
+      excl_energy %in% FALSE &
+      !(pregnant %in% TRUE) &
+      !(lactating %in% TRUE),
     
     ## Aim 2: Aim 1 plus a measured ALT and the liver-related exclusions
     in_aim2 = in_aim1 &

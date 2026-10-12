@@ -25,7 +25,7 @@ df <- df |>
     chol_q = cut(
       choline_dens,
       breaks = quantile(
-        choline_dens[in_aim2],
+        choline_dens[in_aim2 & bmi_cat != "Underweight"],
         probs = seq(0, 1, 0.25),
         na.rm = TRUE
       ),
@@ -40,7 +40,10 @@ df <- df |>
                  "Overweight, higher choline", "Overweight, low choline",
                  "Obese, higher choline", "Obese, low choline")
     )
-  )
+  ) 
+## Quartile cutoffs
+quantile(df$choline_dens[df$in_aim2 & df$bmi_cat != "Underweight"],
+         probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
 
 ## Survey design
 
@@ -108,6 +111,11 @@ summary(m_alt)
 summary(m_ast)
 summary(m_ggt)
 
+## sample sizes for each model
+nrow(model.frame(m_alt))
+nrow(model.frame(m_ast))
+nrow(model.frame(m_ggt))
+
 ## BMI category by low vs. higher choline
 
 m_alt_groups <- fit_enzyme("log_alt", "bmi_chol_group")
@@ -120,12 +128,30 @@ regTermTest(m_alt_groups, ~bmi_chol_group)
 regTermTest(m_ast_groups, ~bmi_chol_group)
 regTermTest(m_ggt_groups, ~bmi_chol_group)
 
+## Within each BMI category: low vs. higher choline
+des2 <- update(des2, chol_low = as.numeric(chol_q == "Q1 (Lowest)"))
+
+fit_within <- function(outcome) {
+  f <- as.formula(paste(outcome, "~ bmi_cat * chol_low + RIDAGEYR + sex + race3 + INDFMPIR"))
+  svyglm(f, design = des2)
+}
+
+m_alt_within <- fit_within("log_alt")
+m_ast_within <- fit_within("log_ast")
+m_ggt_within <- fit_within("log_ggt")
+
+## cholinen between each BMI category?
+regTermTest(m_alt_within, ~chol_low + bmi_cat:chol_low)
+regTermTest(m_ast_within, ~chol_low + bmi_cat:chol_low)
+regTermTest(m_ggt_within, ~chol_low + bmi_cat:chol_low)
+
 ## Tables 2 and 3: adjusted ratios for each enzyme
 
 enzyme_table <- function(models, var, label) {
   models |>
     map(\(m) tbl_regression(m, include = all_of(var), exponentiate = TRUE,
-                            label = setNames(list(label), var)) |>
+                            label = setNames(list(label), var),
+                            pvalue_fun = function(x) style_pvalue(x, digits = 2)) |>
           modify_header(estimate ~ "**Ratio**")) |>
     tbl_merge(tab_spanner = c("**ALT**", "**AST**", "**GGT**"))
 }
