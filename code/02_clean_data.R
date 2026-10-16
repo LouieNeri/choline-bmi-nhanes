@@ -123,7 +123,7 @@ df <- df |>
       !(hepatitis %in% TRUE)
   )
 
-## ---- verification: fail loudly if a recode silently produced all-NA ----
+## ---- verification, check if it is empty ---- 
 stopifnot(
   "sex is all NA (check RIAGENDR labels)"       = any(!is.na(df$sex)),
   "bmi_cat is all NA"                           = any(!is.na(df$bmi_cat)),
