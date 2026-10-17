@@ -178,7 +178,7 @@ tbl_2 <- bind_rows(
                locations = cells_column_labels(columns = starts_with("pct_"))) |>
   tab_footnote("Rao-Scott chi-square test across BMI categories.",
                locations = cells_body(columns = bmi_cat, rows = bmi_cat == "P value")) |>
-  tab_source_note("AI, Adequate Intake (550 mg/day for men, 425 mg/day for women); BMI, body mass index; CI, confidence interval.")
+  tab_source_note("AI, Adequate intake (550 mg/day for men, 425 mg/day for women); BMI, body mass index; CI, confidence interval.")
 
 ## Table 3: % below the AI by menopausal status and BMI
 
@@ -233,7 +233,7 @@ tbl_3 <- prev_menopause_all |>
                locations = cells_column_labels(columns = starts_with("pct_"))) |>
   tab_footnote("BMI × menopausal status interaction from survey-weighted logistic regression. Women with a hysterectomy or unknown status were excluded.",
                locations = cells_body(columns = bmi_cat, rows = bmi_cat == "P for interaction")) |>
-  tab_source_note("AI, Adequate Intake (425 mg/day for women); BMI, body mass index; CI, confidence interval.")
+  tab_source_note("AI, Adequate intake (425 mg/day for women); BMI, body mass index; CI, confidence interval.")
 
 ## Table 4: liver enzymes by BMI category and choline quartile
 
@@ -274,7 +274,7 @@ tbl_4 <- bind_rows(
   tab_spanner("Choline quartile (mg/1,000 kcal)", columns = starts_with("Q")) |>
   tab_footnote("Survey-weighted geometric mean (95% CI).",
                locations = cells_column_spanners()) |>
-  tab_source_note("Abbreviations: ALT, alanine aminotransferase; AST, aspartate aminotransferase; BMI, body mass index; CI, confidence interval; GGT, gamma-glutamyl transferase.")
+  tab_source_note("ALT, alanine aminotransferase; AST, aspartate aminotransferase; BMI, body mass index; CI, confidence interval; GGT, gamma-glutamyl transferase.")
 
 ## Tables 5 and 6: adjusted ratios for each enzyme
 
@@ -321,54 +321,49 @@ tbl_6 <- enzyme_table(list(m_alt_groups, m_ast_groups, m_ggt_groups),
   tab_source_note("ALT, alanine aminotransferase; AST, aspartate aminotransferase; BMI, body mass index; CI, confidence interval; GGT, gamma-glutamyl transferase.")
 
 ## Table 7: low vs. higher choline within each BMI category
+## Estimates come from 04 (within_bmi); this section only formats
 
-# compares the two choline groups directly, same as making "higher choline" the reference
-low_vs_higher <- function(model, bmi) {
-  low <- paste0("bmi_chol_group", bmi, ", low choline")
-  higher <- paste0("bmi_chol_group", bmi, ", higher choline")
-  
-  # normal weight, higher choline is already the reference
-  if (bmi == "Normal") {
-    contrast <- setNames(1, low)
-  } else {
-    contrast <- setNames(c(1, -1), c(low, higher))
-  }
-  
-  result <- svycontrast(model, contrast)
-  est <- coef(result)
-  ci <- confint(result)
-  p <- 2 * pt(-abs(est / SE(result)), df.residual(model))
-  
-  tibble(bmi_cat = bmi,
-         ratio = sprintf("%.2f", exp(est)),
-         ci = sprintf("%.2f, %.2f", exp(ci[1]), exp(ci[2])),
-         p = fmt_p(p))
-}
-
-bmi_groups <- c("Normal", "Overweight", "Obese")
-
-tbl_7 <- bind_rows(
-  ALT = map(bmi_groups, \(b) low_vs_higher(m_alt_groups, b)) |> bind_rows(),
-  AST = map(bmi_groups, \(b) low_vs_higher(m_ast_groups, b)) |> bind_rows(),
-  GGT = map(bmi_groups, \(b) low_vs_higher(m_ggt_groups, b)) |> bind_rows(),
-  .id = "enzyme"
-) |>
-  mutate(bmi_cat = unname(bmi_labels[bmi_cat])) |>
-  pivot_wider(names_from = enzyme, values_from = c(ratio, ci, p), names_vary = "slowest") |>
+tbl_7 <- within_bmi |>
+  mutate(bmi_cat = unname(bmi_labels[bmi_cat]),
+         ci = sprintf("%.2f, %.2f", ci_low, ci_high),
+         ratio = sprintf("%.2f", ratio),
+         p = fmt_p(p)) |>
+  select(enzyme, 
+         bmi_cat, 
+         ratio, 
+         ci, 
+         p) |>
+  pivot_wider(names_from = enzyme, 
+              values_from = c(ratio, ci, p), 
+              names_vary = "slowest") |>
   gt() |>
   cols_label(
     bmi_cat = "BMI category (kg/m²)",
-    ratio_ALT = "Ratio", ci_ALT = "95% CI", p_ALT = "P value",
-    ratio_AST = "Ratio", ci_AST = "95% CI", p_AST = "P value",
-    ratio_GGT = "Ratio", ci_GGT = "95% CI", p_GGT = "P value"
+    ratio_ALT = "Ratio", 
+    ci_ALT = "95% CI", 
+    p_ALT = "P value",
+    ratio_AST = "Ratio", 
+    ci_AST = "95% CI", 
+    p_AST = "P value",
+    ratio_GGT = "Ratio", 
+    ci_GGT = "95% CI", 
+    p_GGT = "P value"
   ) |>
-  tab_spanner("ALT", columns = ends_with("_ALT")) |>
-  tab_spanner("AST", columns = ends_with("_AST")) |>
-  tab_spanner("GGT", columns = ends_with("_GGT")) |>
+  tab_spanner("ALT", 
+              columns = ends_with("_ALT")) |>
+  tab_spanner("AST", 
+              columns = ends_with("_AST")) |>
+  tab_spanner("GGT", 
+              columns = ends_with("_GGT")) |>
   tab_footnote("Ratio of geometric means for low vs. higher choline within the same BMI category, adjusted for age, sex, race and ethnicity, and income-to-poverty ratio.",
                locations = cells_column_labels(columns = starts_with("ratio_"))) |>
-  tab_source_note("Low choline = lowest quartile of choline density; higher choline = quartiles 2 to 4.") |>
-  tab_source_note("ALT, alanine aminotransferase; AST, aspartate aminotransferase; BMI, body mass index; CI, confidence interval; GGT, gamma-glutamyl transferase.")
+  tab_source_note("Low choline = lowest quartile of choline density; 
+                  higher choline = quartiles 2 to 4.") |>
+  tab_source_note("ALT, alanine aminotransferase; 
+                  AST, aspartate aminotransferase; 
+                  BMI, body mass index; 
+                  CI, confidence interval; 
+                  GGT, gamma-glutamyl transferase.")
 
 ## Figure 1: % below AI by sex and BMI
 
@@ -392,7 +387,7 @@ fig_1 <- bind_rows(
        x = "BMI category (kg/m²)",
        y = "Below the choline AI, % (95% CI)",
        caption = "Survey-weighted percentages with 95% Cls. 
-       Al, Adequate Intake; CI, confidence interval
+       Al, Adequate intake; CI, confidence interval
        Al = 550 mg/d for men and 425 mg/d for women.",
        color = "Sex",
        shape = "Sex") +
@@ -419,7 +414,7 @@ fig_2 <- prev_menopause_all |>
        caption = "Survey-weighted percentages with 95% Cls. 
        Al = 425 mg/d. 
        Women who had undergone a hysterectomy and those of unknown status were excluded. 
-       Al, Adequate; CI, confidence interval",
+       Al, Adequate intake; CI, confidence interval",
        color = "Menopausal Status", 
        shape = "Menopausal Status") +
   scale_color_few()
@@ -474,7 +469,7 @@ fig_3 <- bind_rows(
              nrow = 1) +
   scale_y_log10(breaks = c(0.8, 1, 1.25, 1.5, 2)) + # log scale for ratios
   labs(title = "Adjusted liver enzyme levels by BMI category and choline intake",
-       subtitle = "Subtitle: US adults aged 20 years and older, NHANES August 2021-August 2023",
+       subtitle = "US adults aged 20 years and older, NHANES August 2021-August 2023",
        x = "BMI category (kg/m²)",
        y = "Ratio vs. normal weight, higher choline (log scale)",
        color = "Choline intake",
@@ -483,7 +478,10 @@ fig_3 <- bind_rows(
        Low Choline: lowest quartile of choline density (<121.4 mg/1,000 kcal); 
        High Choline: quartiles 2 through 4.
        ALT: alanine aminotransferase; 
-       AST: aspartate aminotransferase; BMI: body mass index; CI: confidence interval; GGT: gamma-glutamyl transferase") +
+       AST: aspartate aminotransferase; 
+       BMI: body mass index; 
+       CI: confidence interval; 
+       GGT: gamma-glutamyl transferase") +
   scale_colour_few()
 
 ## Save tables

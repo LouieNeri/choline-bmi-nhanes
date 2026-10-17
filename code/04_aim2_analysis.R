@@ -2,7 +2,6 @@ library(tidyverse)
 library(survey)
 library(gt)
 library(gtsummary)
-library(broom)
 
 ## Setup
 
@@ -108,21 +107,41 @@ regTermTest(m_ast_groups, ~bmi_chol_group)
 regTermTest(m_ggt_groups, ~bmi_chol_group)
 
 ## Within each BMI category: low vs. higher choline
-des2 <- update(des2, chol_low = as.numeric(chol_q == "Q1 (Lowest)"))
 
-fit_within <- function(outcome) {
-  f <- as.formula(paste(outcome, "~ bmi_cat * chol_low + RIDAGEYR + sex + race3 + INDFMPIR"))
-  svyglm(f, design = des2)
+low_vs_higher <- function(model, bmi) {
+  low <- paste0("bmi_chol_group", bmi, ", low choline")
+  higher <- paste0("bmi_chol_group", bmi, ", higher choline")
+  
+  # normal weight, higher choline is already the reference
+  if (bmi == "Normal") {
+    contrast <- setNames(1, low)
+  } else {
+    contrast <- setNames(c(1, -1), c(low, higher))
+  }
+  
+  result <- svycontrast(model, contrast)
+  est <- coef(result)
+  se <- SE(result)
+  df <- df.residual(model)
+  tcrit <- qt(0.975, df) # t-based CI to match the p value
+  
+  tibble(bmi_cat = bmi,
+         ratio = exp(est),
+         ci_low = exp(est - tcrit * se),
+         ci_high = exp(est + tcrit * se),
+         p = 2 * pt(-abs(est / se), df))
 }
 
-m_alt_within <- fit_within("log_alt")
-m_ast_within <- fit_within("log_ast")
-m_ggt_within <- fit_within("log_ggt")
+bmi_groups <- c("Normal", "Overweight", "Obese")
 
-## choline between each BMI category?
-regTermTest(m_alt_within, ~chol_low + bmi_cat:chol_low)
-regTermTest(m_ast_within, ~chol_low + bmi_cat:chol_low)
-regTermTest(m_ggt_within, ~chol_low + bmi_cat:chol_low)
+within_bmi <- bind_rows(
+  ALT = map(bmi_groups, \(b) low_vs_higher(m_alt_groups, b)) |> bind_rows(),
+  AST = map(bmi_groups, \(b) low_vs_higher(m_ast_groups, b)) |> bind_rows(),
+  GGT = map(bmi_groups, \(b) low_vs_higher(m_ggt_groups, b)) |> bind_rows(),
+  .id = "enzyme"
+)
+
+print(within_bmi)
 
 ## Save objects for 05_tables_figures.R
 save(des2, m_alt, 
@@ -130,4 +149,5 @@ save(des2, m_alt,
      m_alt_groups, 
      m_ast_groups, 
      m_ggt_groups,
+     within_bmi,
      file = "output/aim2_objects.RData")

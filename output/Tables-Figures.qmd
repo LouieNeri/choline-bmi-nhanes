@@ -13,7 +13,7 @@ library(gtsummary)
 library(here)
 ```
 
-**Table 1.** Baseline characteristics by sex
+# **Table 1.** Baseline characteristics by sex
 
 ```{r}
 readRDS(here("output", "table1_baseline.rds"))
@@ -21,7 +21,7 @@ readRDS(here("output", "table1_baseline.rds"))
 
 {{< pagebreak >}}
 
-**Table 2.** Percentage below the choline AI by sex and BMI
+# **Table 2.** Percentage below the choline AI by sex and BMI
 
 ```{r}
 readRDS(here("output", "table2_sex_bmi.rds"))
@@ -29,7 +29,7 @@ readRDS(here("output", "table2_sex_bmi.rds"))
 
 {{< pagebreak >}}
 
-**Table 3.** Percentage below the choline AI by menopausal status and BMI
+# **Table 3.** Percentage below the choline AI by menopausal status and BMI
 
 ```{r}
 readRDS(here("output", "table3_menopause.rds"))
@@ -37,7 +37,7 @@ readRDS(here("output", "table3_menopause.rds"))
 
 {{< pagebreak >}}
 
-**Table 4.** Liver enzymes by BMI category and choline quartile
+# **Table 4.** Liver enzymes by BMI category and choline quartile
 
 ```{r}
 readRDS(here("output", "table4_enzymes.rds"))
@@ -45,7 +45,7 @@ readRDS(here("output", "table4_enzymes.rds"))
 
 {{< pagebreak >}}
 
-**Table 5.** Low choline and obesity vs. all others
+# **Table 5.** Low choline and obesity vs. all others
 
 ```{r}
 readRDS(here("output", "table5_contrast.rds"))
@@ -53,7 +53,7 @@ readRDS(here("output", "table5_contrast.rds"))
 
 {{< pagebreak >}}
 
-**Table 6.** Liver enzymes across BMI and choline groups
+# **Table 6.** Liver enzymes across BMI and choline groups
 
 ```{r}
 readRDS(here("output", "table6_groups.rds"))
@@ -61,7 +61,7 @@ readRDS(here("output", "table6_groups.rds"))
 
 {{< pagebreak >}}
 
-**Table 7.** Low vs. higher choline within each BMI category
+# **Table 7.** Low vs. higher choline within each BMI category
 
 ```{r}
 readRDS(here("output", "table7_within.rds"))
@@ -69,17 +69,23 @@ readRDS(here("output", "table7_within.rds"))
 
 {{< pagebreak >}}
 
+# **Figure 1**
+
 ```{r}
 knitr::include_graphics(here("output", "figure1_sex_bmi.png"))
 ```
 
 {{< pagebreak >}}
 
+# **Figure 2**
+
 ```{r}
 knitr::include_graphics(here("output", "figure2_menopause.png"))
 ```
 
 {{< pagebreak >}}
+
+# **Figure 3**
 
 ```{r}
 knitr::include_graphics(here("output", "figure3_groups.png"))
