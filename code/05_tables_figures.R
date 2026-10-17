@@ -1,11 +1,12 @@
-## Tables and figures for Aims 1 and 2
-## Run 03 and 04 first
+## Tables and figures
+## Run run scripts 01, 02, 03, 04 first
 
 library(tidyverse)
 library(survey)
 library(gt)
 library(gtsummary)
 library(ggthemes)
+library(flowchart)
 
 load("output/aim1_objects.RData")
 load("output/aim2_objects.RData")
@@ -365,9 +366,39 @@ tbl_7 <- within_bmi |>
                   CI, confidence interval; 
                   GGT, gamma-glutamyl transferase.")
 
-## Figure 1: % below AI by sex and BMI
+## figure 1 data for flowchart (running to create mermaid diagram)
 
-fig_1 <- bind_rows(
+tbl_funnel <- exclusion_funnel |>
+  mutate(step = c(
+    "Adults aged 20 years and older",
+    "Two reliable dietary recalls",
+    "Valid 2-day dietary sample weight",
+    "Measured BMI",
+    "Plausible energy intake",
+    "Not pregnant or breastfeeding",
+    "Not underweight (Aim 1 sample)",
+    "ALT measured",
+    "No liver disease",
+    "No hepatitis B",
+    "No heavy alcohol consumption (Aim 2 sample)",
+    "Complete covariate data (adjusted models)"
+  )) |>
+  gt() |>
+  cols_label(
+    step = "Eligibility criterion",
+    remaining = "Remaining, n",
+    excluded = "Excluded, n"
+  ) |>
+  fmt_number(columns = c(remaining, excluded), decimals = 0) |>
+  sub_missing(missing_text = "") |>
+  tab_source_note("NHANES August 2021 to August 2023.")
+
+tbl_funnel
+
+
+## Figure 2: % below AI by sex and BMI
+
+fig_2 <- bind_rows(
   prev_sex_bmi |> mutate(bmi_cat = as.character(bmi_cat)),
   prev_bmi_all |> mutate(sex = "Total")
 ) |>
@@ -393,9 +424,9 @@ fig_1 <- bind_rows(
        shape = "Sex") +
   scale_color_few()
 
-## Figure 2: % below AI by menopausal status and BMI
+## Figure 3: % below AI by menopausal status and BMI
 
-fig_2 <- prev_menopause_all |>
+fig_3 <- prev_menopause_all |>
   filter(bmi_cat != "All") |>
   mutate(bmi_cat = factor(bmi_cat, levels = names(bmi_labels), labels = bmi_labels),
          menopause = factor(menopause, levels = c("pre", "post"),
@@ -419,7 +450,7 @@ fig_2 <- prev_menopause_all |>
        shape = "Menopausal Status") +
   scale_color_few()
 
-## Figure 3: liver enzymes across the six groups
+## Figure 4: liver enzymes across the six groups
 
 get_ratios <- function(model, enzyme) {
   est <- coef(model)
@@ -441,7 +472,7 @@ reference <- tibble(
   ratio = 1, low = 1, high = 1
 )
 
-fig_3 <- bind_rows(
+fig_4 <- bind_rows(
   get_ratios(m_alt_groups, "ALT"),
   get_ratios(m_ast_groups, "AST"),
   get_ratios(m_ggt_groups, "GGT"),
@@ -494,6 +525,7 @@ saveRDS(tbl_4, "output/table4_enzymes.rds")
 saveRDS(tbl_5, "output/table5_contrast.rds")
 saveRDS(tbl_6, "output/table6_groups.rds")
 saveRDS(tbl_7, "output/table7_within.rds")
+saveRDS(tbl_funnel, "output/table_exclusion_funnel.rds")
 
 # tables as png
 gtsave(tbl_1, "output/table1_baseline.png", vwidth = 1100, zoom = 2)
@@ -505,6 +537,6 @@ gtsave(tbl_6, "output/table6_groups.png", vwidth = 1100, zoom = 2)
 gtsave(tbl_7, "output/table7_within.png", vwidth = 1100, zoom = 2)
 
 # figures
-ggsave("output/figure1_sex_bmi.png", fig_1, width = 8, height = 4.5, dpi = 300, bg = "white")
-ggsave("output/figure2_menopause.png", fig_2, width = 8, height = 4.5, dpi = 300, bg = "white")
-ggsave("output/figure3_groups.png", fig_3, width = 8, height = 4.5, dpi = 300, bg = "white")
+ggsave("output/figure2_sex_bmi.png", fig_2, width = 8, height = 4.5, dpi = 300, bg = "white")
+ggsave("output/figure3_menopause.png", fig_3, width = 8, height = 4.5, dpi = 300, bg = "white")
+ggsave("output/figure4_groups.png", fig_4, width = 8, height = 4.5, dpi = 300, bg = "white")

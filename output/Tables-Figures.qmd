@@ -69,10 +69,34 @@ readRDS(here("output", "table7_within.rds"))
 
 {{< pagebreak >}}
 
-# **Figure 1**
+# **Figure 1. Participant flowchart**
 
 ```{r}
-knitr::include_graphics(here("output", "figure1_sex_bmi.png"))
+#| echo: true
+#| message: false
+#| warning: false
+#| paged-print: false
+readRDS(here("output/table_exclusion_funnel.rds"))
+```
+
+```{mermaid}
+%%| label: fig-flowchart
+%%| fig-cap: "Participant flow, NHANES August 2021 to August 2023."
+
+flowchart TD
+    A["Adults aged 20 years and older,<br>NHANES August 2021 to August 2023<br>n = 7,809"]
+    B["Aim 1 sample<br>n = 4,124"]
+    C["Aim 2 sample<br>n = 2,308"]
+    D["Included in adjusted models<br>n = 2,043"]
+
+    E1["Excluded (n = 3,685)<br>Without two reliable dietary recalls: 3,524<br>Without a measured BMI: 47<br>Implausible energy intake: 24<br>Pregnant or breastfeeding: 36<br>Underweight: 54"]
+    E2["Excluded (n = 1,816)<br>Without ALT values: 371<br>Liver disease: 228<br>Hepatitis B: 37<br>Heavy alcohol consumption: 1,180"]
+    E3["Excluded (n = 265)<br>Missing covariate data: 265"]
+
+    A --> B --> C --> D
+    A -.-> E1
+    B -.-> E2
+    C -.-> E3
 ```
 
 {{< pagebreak >}}
@@ -80,7 +104,7 @@ knitr::include_graphics(here("output", "figure1_sex_bmi.png"))
 # **Figure 2**
 
 ```{r}
-knitr::include_graphics(here("output", "figure2_menopause.png"))
+knitr::include_graphics(here("output", "figure2_sex_bmi.png"))
 ```
 
 {{< pagebreak >}}
@@ -88,5 +112,13 @@ knitr::include_graphics(here("output", "figure2_menopause.png"))
 # **Figure 3**
 
 ```{r}
-knitr::include_graphics(here("output", "figure3_groups.png"))
+knitr::include_graphics(here("output", "figure3_menopause.png"))
+```
+
+{{< pagebreak >}}
+
+# **Figure 4**
+
+```{r}
+knitr::include_graphics(here("output", "figure4_groups.png"))
 ```

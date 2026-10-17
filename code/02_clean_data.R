@@ -143,16 +143,42 @@ print(table(df$below_ai[df$in_aim1], useNA = "ifany"))
 cat("\n--- menopause ---\n");     print(table(df$menopause, useNA = "ifany"))
 cat("\n--- heavy_alcohol ---\n"); print(table(df$heavy_alcohol, useNA = "ifany"))
 
-## ---- exclusion funnel ----
-cat("\n--- exclusion funnel ---\n")
-cat("Full merged sample:      ", nrow(df), "\n")
-cat("Adults 20+:              ", sum(df$RIDAGEYR >= 20, na.rm = TRUE), "\n")
-cat("  + two reliable recalls:",
-    sum(df$RIDAGEYR >= 20 & df$day1_ok %in% TRUE & df$day2_ok %in% TRUE,
-        na.rm = TRUE), "\n")
-cat("In Aim 1 sample:         ", sum(df$in_aim1, na.rm = TRUE), "\n")
-cat("In Aim 2 sample:         ", sum(df$in_aim2, na.rm = TRUE), "\n")
 
 ## ---- save analytic dataset (full rows, with flags + derived vars) ----
 saveRDS(df, "data/nhanes_L_analytic.rds")
 write_csv(df, "data/nhanes_L_analytic.csv")
+
+## ---- exclusion funnel ----
+exclusion_data <- readRDS("data/nhanes_L_analytic.rds")
+
+conditions <- with(exclusion_data, list(
+  RIDAGEYR >= 20,
+  day1_ok %in% TRUE & day2_ok %in% TRUE,
+  WTDR2D %in% WTDR2D[WTDR2D > 0],
+  !is.na(BMXBMI),
+  excl_energy %in% FALSE,
+  !(pregnant %in% TRUE) & !(lactating %in% TRUE),
+  bmi_cat != "Underweight",
+  !is.na(LBXSATSI),
+  !(liver_disease %in% TRUE),
+  !(hepatitis %in% TRUE),
+  !(heavy_alcohol %in% TRUE),
+  complete.cases(RIDAGEYR, sex, RIDRETH3, INDFMPIR)
+))
+
+n <- sapply(
+  Reduce(`&`, conditions, accumulate = TRUE),
+  \(x) sum(x %in% TRUE)
+)
+
+exclusion_funnel <- tibble(
+  step = c(
+    "Adults 20+", "Two recalls", "2-day weight", "BMI",
+    "Energy", "Pregnant/BF", "Underweight", "ALT",
+    "Liver disease", "Hepatitis B", "Heavy alcohol", "Covariates"
+  ),
+  remaining = n,
+  excluded = c(NA, -diff(n))
+)
+
+exclusion_funnel
