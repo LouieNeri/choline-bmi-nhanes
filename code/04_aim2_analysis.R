@@ -106,6 +106,11 @@ regTermTest(m_alt_groups, ~bmi_chol_group)
 regTermTest(m_ast_groups, ~bmi_chol_group)
 regTermTest(m_ggt_groups, ~bmi_chol_group)
 
+#differ by BMI?
+regTermTest(m_alt_within, ~bmi_cat:chol_low)
+regTermTest(m_ast_within, ~bmi_cat:chol_low)
+regTermTest(m_ggt_within, ~bmi_cat:chol_low)
+
 ## Within each BMI category: low vs. higher choline
 
 low_vs_higher <- function(model, bmi) {
