@@ -358,6 +358,12 @@ tbl_7 <- within_bmi |>
               columns = ends_with("_GGT")) |>
   tab_footnote("Ratio of geometric means for low vs. higher choline within the same BMI category, adjusted for age, sex, race and ethnicity, and income-to-poverty ratio.",
                locations = cells_column_labels(columns = starts_with("ratio_"))) |>
+  tab_source_note(paste0(
+    "Choline × BMI interaction: ",
+    paste0(names(p_interaction_enzymes), " P = ", 
+           fmt_p(p_interaction_enzymes), 
+           collapse = "; "), "."
+  )) |>
   tab_source_note("Low choline = lowest quartile of choline density; 
                   higher choline = quartiles 2 to 4.") |>
   tab_source_note("ALT, alanine aminotransferase; 

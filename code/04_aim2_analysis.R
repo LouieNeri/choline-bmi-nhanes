@@ -106,10 +106,20 @@ regTermTest(m_alt_groups, ~bmi_chol_group)
 regTermTest(m_ast_groups, ~bmi_chol_group)
 regTermTest(m_ggt_groups, ~bmi_chol_group)
 
-#differ by BMI?
-regTermTest(m_alt_within, ~bmi_cat:chol_low)
-regTermTest(m_ast_within, ~bmi_cat:chol_low)
-regTermTest(m_ggt_within, ~bmi_cat:chol_low)
+des2 <- update(des2, chol_low = as.numeric(chol_q == "Q1 (Lowest)"))
+
+fit_within <- function(outcome) {
+  f <- as.formula(paste(outcome, "~ bmi_cat * chol_low + RIDAGEYR + sex + race3 + INDFMPIR"))
+  svyglm(f, design = des2)
+}
+
+p_interaction_enzymes <- c(
+  ALT = as.numeric(regTermTest(fit_within("log_alt"), ~bmi_cat:chol_low)$p),
+  AST = as.numeric(regTermTest(fit_within("log_ast"), ~bmi_cat:chol_low)$p),
+  GGT = as.numeric(regTermTest(fit_within("log_ggt"), ~bmi_cat:chol_low)$p)
+)
+
+p_interaction_enzymes
 
 ## Within each BMI category: low vs. higher choline
 
@@ -155,4 +165,5 @@ save(des2, m_alt,
      m_ast_groups, 
      m_ggt_groups,
      within_bmi,
+     p_interaction_enzymes,
      file = "output/aim2_objects.RData")
