@@ -355,27 +355,24 @@ display: none;
 <div id="choline-intake-adequacy-and-liver-enzymes-by-body-weight-in-us-adults" class="section level1">
 <h1>Choline Intake Adequacy and Liver Enzymes by Body Weight in US
 Adults</h1>
-<p>This repository contains the code and data for a cross-sectional
-study examining the relationship between dietary choline intake, body
-mass index (BMI), liver enzymes (ALT, AST, and GGT) in US adults using
-data from the National Health and Nutrition Examination Survey (NHANES)
-from August 2021 to August 2023.</p>
+<p>This repository contains analysis code for a cross-sectional study of
+dietary choline intake, body mass index (BMI), and liver enzymes in US
+adults, using NHANES August 2021 to August 2023.</p>
 <div id="study-aims" class="section level2">
 <h2>Study Aims</h2>
 <p>This study has two aims:</p>
 <ol style="list-style-type: decimal">
-<li>Does the prevalence of adults eating less than the Adequate Intake
-(AI) for choline differ by BMI category?</li>
-<li>Is the interaction between dietary choline intake and liver enzymes
-(ALT, AST, GGT) different in adults with obesity?</li>
+<li>Estimate the prevalence of choline intake less than the AI for each
+BMI category, based on gender and menopausal status.</li>
+<li>Is the association between choline intake and liver enzymes (ALT,
+AST, and GGT) modified by obesity?</li>
 </ol>
 </div>
-<div id="data" class="section level2">
-<h2>Data</h2>
+<div id="data-and-variables" class="section level2">
+<h2>Data and Variables</h2>
 <p>All data come from the National Health and Nutrition Examination
-Survey (NHANES), run by the National Center for Health Statistics.</p>
-<p>No data use agreement is needed. Files are downloaded directly in R
-with the <code>nhanesA</code> package.</p>
+Survey (NHANES), from the National Center for Health Statistics.</p>
+<p>NHANES documentation: <a href="https://wwwn.cdc.gov/nchs/nhanes" class="uri">https://wwwn.cdc.gov/nchs/nhanes</a></p>
 <table>
 <thead>
 <tr>
@@ -398,7 +395,7 @@ with the <code>nhanesA</code> package.</p>
 </tr>
 <tr>
 <td>BIOPRO_L</td>
-<td>Standard biochemistry profile (ALT, AST, GGT)</td>
+<td>Standard biochemistry profilex</td>
 </tr>
 <tr>
 <td>RHQ_L</td>
@@ -410,24 +407,18 @@ with the <code>nhanesA</code> package.</p>
 </tr>
 <tr>
 <td>MCQ_L</td>
-<td>Medical conditions (liver disease)</td>
+<td>Medical conditions</td>
 </tr>
 <tr>
 <td>HEQ_L</td>
-<td>Hepatitis</td>
+<td>Hepatitis status</td>
 </tr>
 </tbody>
 </table>
-<p>NHANES documentation: <a href="https://wwwn.cdc.gov/nchs/nhanes" class="uri">https://wwwn.cdc.gov/nchs/nhanes</a></p>
 </div>
-<div id="how-to-reproduce" class="section level2">
-<h2>How to reproduce</h2>
-<ol style="list-style-type: decimal">
-<li>Clone or download this repository.</li>
-<li>Open <code>choline-bmi-nhanes.Rproj</code> in RStudio so file paths
-work.</li>
-<li>Run the scripts in order:</li>
-</ol>
+<div id="scripts-and-reproducibility" class="section level2">
+<h2>Scripts and Reproducibility</h2>
+<p>Run the scripts in order:</p>
 <table>
 <colgroup>
 <col width="50%" />
@@ -442,86 +433,56 @@ work.</li>
 <tbody>
 <tr>
 <td><code>01_fetch_nhanes.R</code></td>
-<td>Downloads the NHANES datasets and merges based on particiapnt
-ID</td>
+<td>Downloads all the nhanes datasets and combines them by study
+participant id.</td>
 </tr>
 <tr>
 <td><code>02_clean_data.R</code></td>
-<td>Creates study variables and flags who is in each analysis</td>
+<td>Creates new variables needed for the analysis</td>
 </tr>
 <tr>
 <td><code>03_aim_1_analysis.R</code></td>
-<td>Aim 1: estimates the percentage of adults below the Adequate Intake
-by BMI category, sex, and menopause status.</td>
+<td>Analysis for Aim 1 estimating % less than adequate intake of choline
+by BMI category and stratified by sex/gender and menopause status.</td>
 </tr>
 <tr>
 <td><code>04_aim2_analysis.R</code></td>
-<td>Aim 2: liver enzyme models, main contrast, and six-group check</td>
+<td>Analysis for Aim 2 models for liver enzymes and contrasts for main
+effect of choline, and secondary analyses.</td>
+</tr>
+<tr>
+<td><code>05_tables_figures.R</code></td>
+<td>Creates all tables and figures from the saved results of scripts 03
+and 04.</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div id="requirements" class="section level2">
-<h2>Requirements</h2>
+<div id="r-version-and-packages-used" class="section level2">
+<h2>R Version and Packages used</h2>
 <ul>
 <li>R 4.3.3</li>
 <li>Packages:</li>
 </ul>
-<pre class="r"><code>install.packages(c(&quot;nhanesA&quot;, &quot;tidyverse&quot;, &quot;survey&quot;, &quot;gt&quot;, &quot;gtsummary&quot;))</code></pre>
-<ul>
-<li>Saving tables as PNG also needs <code>webshot2</code> and a Chrome
-or Chromium browser.</li>
-</ul>
+<pre class="r"><code>install.packages(c(&quot;nhanesA&quot;, &quot;tidyverse&quot;, &quot;survey&quot;, &quot;gt&quot;, &quot;gtsummary&quot;,
+                   &quot;ggthemes&quot;, &quot;flowchart&quot;, &quot;here&quot;, &quot;webshot2&quot;))</code></pre>
 </div>
-<div id="repository-structure" class="section level2">
-<h2>Repository structure</h2>
+<div id="folder-structure" class="section level2">
+<h2>Folder Structure</h2>
 <pre><code>choline-bmi-nhanes/
-├── 01_fetch_nhanes.R
-├── 02_clean_data.R
-├── 03_aim_1_analysis.R
-├── 04_aim2_analysis.R
-├── data/        
-├── output/      # tables and figures
-└── docs/        # manuscript and supporting files</code></pre>
-</div>
-<div id="analysis" class="section level2">
-<h2>Analysis</h2>
-<ul>
-<li>All results use the two-day dietary weight (WTDR2D) along with the
-NHANES stratification variables and primary sampling units so that
-results are nationally representative.</li>
-<li>The survey design is specified on the full sample, then the analysis
-is done on the appropriate subset. This is the approach recommended by
-the National Center for Health Statistics (NCHS). The lines to drop rows
-are not executed until after the survey design is declared.</li>
-<li>Inclusion and exclusion criteria are defined by two flags in
-<code>02_clean_data.R</code>: <code>in_aim1</code> and
-<code>in_aim2</code> (Aim 1 includes adults 20 years or older with two
-good 24-hour dietary recalls, measured BMI, and plausible energy intake.
-Aim 2 also excludes heavy alcohol use, self-reported liver disease and
-hepatitis, and requires liver enzymes.)</li>
-<li>Choline intake is the average of the two dietary recalls. For Aim 1,
-choline intake is compared to the sex-specific Adequate Intakes: 550
-mg/day for men and 425 mg/day for women. For Aim 2, choline density
-(mg/1,000 kcal) is used to account for total food intake.</li>
-<li>Liver enzymes are log transformed and the results are presented as
-the ratio of geometric means. The Bonferroni-corrected significance
-threshold is P &lt; 0.017 for the three liver enzymes.</li>
-</ul>
-</div>
-<div id="citation" class="section level2">
-<h2>Citation</h2>
-<p>If you use this code, please cite:</p>
-<blockquote>
-<p>Neri A. (2026). <em>Choline Intake Adequacy and Liver Enzymes by Body
-Weight in US Adults</em> (Version 1.0) [Code]. Zenodo. <a href="https://doi.org/XXXX" class="uri">https://doi.org/XXXX</a></p>
-</blockquote>
-<p>The DOI will be added after the first release is archived on
-Zenodo.</p>
+├── code/        # code used to conduct the analysis      
+├── data/        # raw and cleaned data files
+├── output/      # figures and tables produced from the code
+└── docs/        # supporting files including manuscript</code></pre>
+<p>Open the project’s .Rproj file first so file paths work from the
+project folder.</p>
 </div>
 <div id="license" class="section level2">
 <h2>License</h2>
-<p>Code is released under the CC0 1.0 Universal.</p>
+<p>This document is placed in the public domain under the terms of <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0
+Universal</a>. You may copy, adapt, and distribute this document as you
+wish. See the <code>LICENSE</code> file for more information. The NHANES
+data are in the public domain.</p>
 </div>
 </div>
 

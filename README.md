@@ -1,6 +1,6 @@
 # Choline Intake Adequacy and Liver Enzymes by Body Weight in US Adults
 
-This respository contains analysis code for a cross-sectional study of dietary choline intake, body mass index (BMI), and liver enzymes in US adults, using NHANES August 2021 to August 2023.
+This repository contains analysis code for a cross-sectional study of dietary choline intake, body mass index (BMI), and liver enzymes in US adults, using NHANES August 2021 to August 2023.
 
 ## Study Aims
 
@@ -31,11 +31,12 @@ NHANES documentation: <https://wwwn.cdc.gov/nchs/nhanes>
 Run the scripts in order:
 
 | Script | Function |
-|----|----|
+|------------------------------------|------------------------------------|
 | `01_fetch_nhanes.R` | Downloads all the nhanes datasets and combines them by study participant id. |
 | `02_clean_data.R` | Creates new variables needed for the analysis |
 | `03_aim_1_analysis.R` | Analysis for Aim 1 estimating % less than adequate intake of choline by BMI category and stratified by sex/gender and menopause status. |
-| `04_aim2_analysis.R` | Analysis for Aim 2 models for liver enzymes and contrasts for main effect of choline, and secondary analysis. |
+| `04_aim2_analysis.R` | Analysis for Aim 2 models for liver enzymes and contrasts for main effect of choline, and secondary analyses. |
+| `05_tables_figures.R` | Creates all tables and figures from the saved results of scripts 03 and 04. |
 
 ## R Version and Packages used
 
@@ -43,7 +44,8 @@ Run the scripts in order:
 - Packages:
 
 ``` r
-install.packages(c("nhanesA", "tidyverse", "survey", "gt", "gtsummary"))
+install.packages(c("nhanesA", "tidyverse", "survey", "gt", "gtsummary",
+                   "ggthemes", "flowchart", "here", "webshot2"))
 ```
 
 ## Folder Structure
@@ -55,6 +57,7 @@ choline-bmi-nhanes/
 ├── output/      # figures and tables produced from the code
 └── docs/        # supporting files including manuscript
 ```
+Open the project’s .Rproj file first so file paths work from the project folder.
 
 ## License
 
