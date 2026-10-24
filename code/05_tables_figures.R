@@ -337,6 +337,10 @@ tbl_7 <- within_bmi |>
   pivot_wider(names_from = enzyme, 
               values_from = c(ratio, ci, p), 
               names_vary = "slowest") |>
+  bind_rows(tibble(bmi_cat = "P for interaction",
+                   p_ALT = fmt_p(p_interaction_enzymes["ALT"]),
+                   p_AST = fmt_p(p_interaction_enzymes["AST"]),
+                   p_GGT = fmt_p(p_interaction_enzymes["GGT"]))) |>
   gt() |>
   cols_label(
     bmi_cat = "BMI category (kg/m²)",
@@ -356,21 +360,13 @@ tbl_7 <- within_bmi |>
               columns = ends_with("_AST")) |>
   tab_spanner("GGT", 
               columns = ends_with("_GGT")) |>
-  tab_footnote("Ratio of geometric means for low vs. higher choline within the same BMI category, adjusted for age, sex, race and ethnicity, and income-to-poverty ratio.",
+  sub_missing(missing_text = "") |>
+  tab_footnote("Low vs. higher choline within each BMI category, estimated as contrasts from the six-group model in Table 6, adjusted for age, sex, race and ethnicity, and income-to-poverty ratio.",
                locations = cells_column_labels(columns = starts_with("ratio_"))) |>
-  tab_source_note(paste0(
-    "Choline × BMI interaction: ",
-    paste0(names(p_interaction_enzymes), " P = ", 
-           fmt_p(p_interaction_enzymes), 
-           collapse = "; "), "."
-  )) |>
-  tab_source_note("Low choline = lowest quartile of choline density; 
-                  higher choline = quartiles 2 to 4.") |>
-  tab_source_note("ALT, alanine aminotransferase; 
-                  AST, aspartate aminotransferase; 
-                  BMI, body mass index; 
-                  CI, confidence interval; 
-                  GGT, gamma-glutamyl transferase.")
+  tab_footnote("Single overall test of whether the choline association differs across BMI categories (choline × BMI interaction); no ratio is estimated.",
+               locations = cells_body(columns = bmi_cat, rows = bmi_cat == "P for interaction")) |>
+  tab_source_note("Low choline = lowest quartile of choline density; higher choline = quartiles 2 to 4.") |>
+  tab_source_note("ALT, alanine aminotransferase; AST, aspartate aminotransferase; BMI, body mass index; CI, confidence interval; GGT, gamma-glutamyl transferase.")
 
 ## figure 1 data for flowchart (running to create mermaid diagram)
 
